@@ -60,19 +60,21 @@ try
     // Database and Infrastructure Services
     builder.Services.AddSingleton<SqlConnectionFactory>(sp =>
     {
-        // Try environment variable first, then config
-        var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? 
-                              builder.Configuration.GetConnectionString("Postgres") ?? 
-                              "Host=localhost;Database=postgres;Username=admin;Password=admin123;SearchPath=dairy";
+        var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
         
-        // Convert PostgreSQL URL format if needed
-        if (connectionString.StartsWith("postgresql://"))
+        if (!string.IsNullOrEmpty(dbUrl) && dbUrl.StartsWith("postgresql://"))
         {
-            var uri = new Uri(connectionString);
-            connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.Trim('/')};Username={uri.UserInfo.Split(':')[0]};Password={uri.UserInfo.Split(':')[1]};SSL Mode=Require;Trust Server Certificate=true;SearchPath=dairy";
+            var uri = new Uri(dbUrl);
+            var userInfo = uri.UserInfo.Split(':');
+            var connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.Trim('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true;SearchPath=dairy";
+            return new SqlConnectionFactory(connectionString);
         }
-        
-        return new SqlConnectionFactory(connectionString);
+        else
+        {
+            var fallback = builder.Configuration.GetConnectionString("Postgres") ?? 
+                          "Host=localhost;Database=postgres;Username=admin;Password=admin123;SearchPath=dairy";
+            return new SqlConnectionFactory(fallback);
+        }
     });
 
     // Repository Services
@@ -183,9 +185,26 @@ try
         // Continue without endpoints if they fail
     }
 
+    // Debug endpoint
+    app.MapGet("/api/debug", () => {
+        var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+        return Results.Json(new {
+            hasDbUrl = !string.IsNullOrEmpty(dbUrl),
+            dbUrlLength = dbUrl?.Length ?? 0,
+            dbUrlStart = dbUrl?.Substring(0, Math.Min(30, dbUrl?.Length ?? 0)),
+            environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+            port = Environment.GetEnvironmentVariable("PORT")
+        });
+    });
+
     // Database test endpoint
     app.MapGet("/api/test-db", async (SqlConnectionFactory dbFactory) => {
         try {
+            var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            if (string.IsNullOrEmpty(dbUrl)) {
+                return Results.Json(new { success = false, error = "DATABASE_URL is empty or null" });
+            }
+            
             using var connection = (NpgsqlConnection)dbFactory.CreateConnection();
             await connection.OpenAsync();
             
