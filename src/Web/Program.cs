@@ -108,21 +108,23 @@ var app = builder.Build();
 // Session middleware
 app.UseSession();
 
-// Authentication middleware for pages (not API)
-app.Use(async (context, next) =>
+// Skip authentication in production for now
+if (!app.Environment.IsProduction())
 {
-    var publicPaths = new[] { "/simple-login", "/login", "/database-login", "/health", "/api", "/swagger" };
-    
-    if (!publicPaths.Any(p => context.Request.Path.StartsWithSegments(p)) && 
-        context.Session.GetString("UserId") == null &&
-        !context.Request.Path.StartsWithSegments("/api"))
+    app.Use(async (context, next) =>
     {
-        context.Response.Redirect("/simple-login");
-        return;
-    }
-    
-    await next();
-});
+        var publicPaths = new[] { "/simple-login", "/login", "/database-login", "/health", "/api", "/swagger" };
+        
+        if (!publicPaths.Any(p => context.Request.Path.StartsWithSegments(p)) && 
+            context.Session.GetString("UserId") == null)
+        {
+            context.Response.Redirect("/simple-login");
+            return;
+        }
+        
+        await next();
+    });
+}
 
 // Localization Middleware
 var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
