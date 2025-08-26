@@ -1,0 +1,16 @@
+@page
+@model RateChartUploadModel
+<h1>Upload Rate Chart</h1>
+<form method="post" enctype="multipart/form-data">
+    <label>Milk Type</label>
+    <input asp-for="MilkType" />
+    <label>Shift</label>
+    <input asp-for="ShiftId" />
+    <label>Effective From</label>
+    <input type="date" asp-for="EffectiveFrom" />
+    <label>Effective To</label>
+    <input type="date" asp-for="EffectiveTo" />
+    <label>File</label>
+    <input type="file" asp-for="File" />
+    <button type="submit">Upload</button>
+</form>

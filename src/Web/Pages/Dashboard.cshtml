@@ -1,0 +1,220 @@
+@page
+@model DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1"><i class="fas fa-tachometer-alt text-primary"></i> Today at a Glance</h2>
+        <p class="text-muted mb-0">Real-time dairy operations overview</p>
+    </div>
+    <div>
+        <button class="btn btn-outline-primary btn-modern me-2" onclick="refreshData()">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+        <button class="btn btn-primary btn-modern" onclick="exportReport()">
+            <i class="fas fa-download"></i> Export
+        </button>
+    </div>
+</div>
+
+<!-- Key Metrics Row -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="metric-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h6 class="mb-1 opacity-75">Total Milk Collected</h6>
+                    <h2 class="mb-1 fw-bold">@Model.TodayCollection.ToString("F1") L</h2>
+                    <small class="opacity-75">Shift: Morning + Evening</small>
+                </div>
+                <i class="fas fa-tint fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="metric-card success">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h6 class="mb-1 opacity-75">Avg FAT / SNF</h6>
+                    <h2 class="mb-1 fw-bold">@Model.AvgFatContent.ToString("F1")% / 8.7%</h2>
+                    <small class="opacity-75">Weighted average</small>
+                </div>
+                <i class="fas fa-flask fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="metric-card warning">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h6 class="mb-1 opacity-75">Payouts Due</h6>
+                    <h2 class="mb-1 fw-bold">₹@Model.TotalOutstanding.ToString("N0")</h2>
+                    <small class="opacity-75">Today</small>
+                </div>
+                <i class="fas fa-wallet fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="metric-card info">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h6 class="mb-1 opacity-75">POS Sales</h6>
+                    <h2 class="mb-1 fw-bold">₹@Model.TodayRevenue.ToString("N0")</h2>
+                    <small class="opacity-75">Till now</small>
+                </div>
+                <i class="fas fa-receipt fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-md-8 mb-3">
+        <div class="card card-modern h-100">
+            <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-0">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-chart-line text-primary"></i> Collections (last 14 days)</h5>
+                </div>
+                <button class="btn btn-outline-primary btn-sm btn-modern">
+                    <i class="fas fa-download"></i> CSV
+                </button>
+            </div>
+            <div class="card-body">
+                <canvas id="collectionChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card card-modern h-100">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-bell text-warning"></i> Alerts</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex align-items-center px-0 border-0">
+                        <i class="fas fa-bell text-warning me-2"></i>
+                        <small>BMC #2 temp > 6°C for 12m</small>
+                    </div>
+                    <div class="list-group-item d-flex align-items-center px-0 border-0">
+                        <i class="fas fa-bell text-danger me-2"></i>
+                        <small>Analyzer calibration overdue</small>
+                    </div>
+                    <div class="list-group-item d-flex align-items-center px-0 border-0">
+                        <i class="fas fa-bell text-primary me-2"></i>
+                        <small>42 payouts pending approval</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <div class="card card-modern">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-users text-primary"></i> Recent Collections</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Time</th>
+                                <th>Farmer</th>
+                                <th>Weight</th>
+                                <th>FAT</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(var collection in Model.RecentCollections.Take(5))
+                            {
+                                <tr>
+                                    <td><small>@DateTime.Now.ToString("HH:mm")</small></td>
+                                    <td>@collection.farmer_name</td>
+                                    <td>@collection.quantity.ToString("F1") L</td>
+                                    <td>@collection.fat_percentage.ToString("F1")%</td>
+                                    <td>₹@collection.total_amount.ToString("N0")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card card-modern">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-trophy text-success"></i> Top Farmers This Month</h5>
+            </div>
+            <div class="card-body">
+                @foreach(var farmer in Model.TopFarmers.Take(5))
+                {
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <strong>@farmer.name</strong> <span class="text-muted">(@farmer.code)</span><br>
+                            <small class="text-muted">Avg Fat: @farmer.avg_fat.ToString("F1")%</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-primary fs-6">@farmer.total_collection.ToString("F0")L</span>
+                        </div>
+                    </div>
+                }
+                @if(!Model.TopFarmers.Any())
+                {
+                    <p class="text-muted text-center">No data available</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Collection Trends Chart
+const ctx = document.getElementById('collectionChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Jan 1', 'Jan 2', 'Jan 3', 'Jan 4', 'Jan 5', 'Jan 6', 'Jan 7', 'Jan 8', 'Jan 9', 'Jan 10', 'Jan 11', 'Jan 12', 'Jan 13', 'Jan 14'],
+        datasets: [{
+            label: 'Milk Collected (L)',
+            data: [1200, 1350, 1180, 1420, 1245, 1380, 1245, 1320, 1280, 1450, 1380, 1290, 1410, 1350],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+            legend: { display: false }
+        },
+        scales: { 
+            y: { 
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.1)' }
+            },
+            x: {
+                grid: { display: false }
+            }
+        }
+    }
+});
+
+function refreshData() {
+    location.reload();
+}
+
+function exportReport() {
+    window.open('/Reports/Export?type=dashboard', '_blank');
+}
+</script>

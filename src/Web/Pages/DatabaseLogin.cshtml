@@ -1,0 +1,162 @@
+@page "/database-login"
+@model DatabaseLoginModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Database Connection - Dairy Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+        }
+        .form-control {
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+        }
+        .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <i class="fas fa-cow text-primary fs-1 mb-3"></i>
+            <h2 class="fw-bold">Dairy Management</h2>
+            <p class="text-muted">Configure database connection</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                @Model.ErrorMessage
+            </div>
+        }
+
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-server me-2"></i>Database Host
+                </label>
+                <input type="text" class="form-control" name="Host" value="@Model.Host" placeholder="localhost" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-database me-2"></i>Database Name
+                </label>
+                <input type="text" class="form-control" name="Database" value="@Model.Database" placeholder="postgres" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-user me-2"></i>Username
+                </label>
+                <input type="text" class="form-control" name="Username" value="@Model.Username" placeholder="postgres" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-lock me-2"></i>Password
+                </label>
+                <input type="password" class="form-control" name="Password" placeholder="Enter database password" required>
+            </div>
+
+            <div class="mb-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="RememberCredentials" value="true" @(Model.RememberCredentials ? "checked" : "") id="rememberCheck">
+                    <label class="form-check-label" for="rememberCheck">
+                        <i class="fas fa-save me-1"></i>Remember credentials for auto-reconnect
+                    </label>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-outline-primary" onclick="testConnection()">
+                    <i class="fas fa-vial me-2"></i>Test Connection (Python)
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plug me-2"></i>Connect to Database
+                </button>
+            </div>
+
+            <div id="testResult" class="mt-3" style="display: none;"></div>
+        </form>
+
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Default PostgreSQL credentials: postgres/postgres
+            </small>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function testConnection() {
+            const host = document.querySelector('input[name="Host"]').value;
+            const database = document.querySelector('input[name="Database"]').value;
+            const username = document.querySelector('input[name="Username"]').value;
+            const password = document.querySelector('input[name="Password"]').value;
+            
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin me-2"></i>Testing connection...</div>';
+            
+            try {
+                const response = await fetch('/database-login?handler=TestConnection', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: `host=${encodeURIComponent(host)}&database=${encodeURIComponent(database)}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<div class="alert alert-success"><i class="fas fa-check me-2"></i>${result.message}<br><small>${result.version}</small></div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times me-2"></i>${result.error}<br><small>${result.details}</small></div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Test failed: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

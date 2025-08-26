@@ -1,0 +1,136 @@
+@page
+@model QualityControlModel
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-flask text-primary"></i> Quality Control & Testing</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTestModal">
+        <i class="fas fa-plus"></i> Add Test Result
+    </button>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5>FSSAI Compliant</h5>
+                <h3>@Model.CompliantBatches</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5>Pending Tests</h5>
+                <h3>@Model.PendingTests</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5>Avg Fat %</h5>
+                <h3>@Model.AvgFat.ToString("N1")</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5>Avg SNF %</h5>
+                <h3>@Model.AvgSnf.ToString("N1")</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Batch ID</th>
+                    <th>Test Date</th>
+                    <th>Fat %</th>
+                    <th>SNF %</th>
+                    <th>Bacterial Count</th>
+                    <th>Adulteration</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var test in Model.QualityTests)
+                {
+                    <tr>
+                        <td>@test.batch_id</td>
+                        <td>@test.test_date.ToString("dd/MM/yyyy")</td>
+                        <td>@test.fat_pct.ToString("N2")</td>
+                        <td>@test.snf_pct.ToString("N2")</td>
+                        <td>@test.bacterial_count</td>
+                        <td>@(test.adulteration_detected ? "Detected" : "Clean")</td>
+                        <td>
+                            <span class="badge @(test.fssai_compliant ? "bg-success" : "bg-danger")">
+                                @(test.fssai_compliant ? "Compliant" : "Non-Compliant")
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-info">View Report</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Test Modal -->
+<div class="modal fade" id="addTestModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="AddTest">
+                <div class="modal-header">
+                    <h5>Add Quality Test Result</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Batch ID</label>
+                        <input type="number" class="form-control" name="BatchId" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fat %</label>
+                                <input type="number" step="0.1" class="form-control" name="FatPct" value="4.0" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">SNF %</label>
+                                <input type="number" step="0.1" class="form-control" name="SnfPct" value="8.5" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Bacterial Count</label>
+                        <input type="number" class="form-control" name="BacterialCount" value="50000" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tested By</label>
+                        <input type="text" class="form-control" name="TestedBy">
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="AdulterationDetected">
+                            <label class="form-check-label">Adulteration Detected</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Test Result</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

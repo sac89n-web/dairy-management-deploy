@@ -1,0 +1,38 @@
+@page
+@model CreateTablesModel
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Create Database Tables</h4>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.Message))
+                    {
+                        <div class="alert @(Model.Message.Contains("Error") ? "alert-danger" : "alert-success")">
+                            @Model.Message
+                        </div>
+                    }
+                    
+                    <p>Click the button below to create all required database tables:</p>
+                    <ul>
+                        <li>inventory_items</li>
+                        <li>inventory_transactions</li>
+                        <li>routes</li>
+                        <li>route_farmers</li>
+                        <li>products</li>
+                        <li>subscriptions</li>
+                        <li>subscription_deliveries</li>
+                    </ul>
+                    
+                    <form method="post">
+                        <button type="submit" class="btn btn-primary">Create Tables</button>
+                        <a href="/" class="btn btn-secondary">Back to Dashboard</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

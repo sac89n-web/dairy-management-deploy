@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">डेयरी प्रबंधन</string>
+    <string name="login">लॉगिन</string>
+    <string name="dashboard">डैशबोर्ड</string>
+    <string name="total_farmers">कुल किसान</string>
+    <string name="total_customers">कुल ग्राहक</string>
+    <string name="total_collectors">कुल संग्रहकर्ता</string>
+    <string name="todays_sales">आज की बिक्री</string>
+    <string name="paid_vs_due">भुगतान बनाम बकाया</string>
+    <string name="total_milk_collected">कुल दूध संग्रहित</string>
+    <string name="total_milk_sold">कुल दूध बेचा गया</string>
+    <string name="milk_collection_entry">दूध संग्रह प्रविष्टि</string>
+    <string name="quantity_ltr">मात्रा (लीटर)</string>
+    <string name="fat_pct">फैट %</string>
+    <string name="price_ltr">मूल्य/लीटर</string>
+    <string name="submit">सबमिट करें</string>
+    <string name="invalid_credentials">अमान्य प्रमाण-पत्र</string>
+</resources>

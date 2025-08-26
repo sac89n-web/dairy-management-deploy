@@ -1,0 +1,158 @@
+@page
+@model ReportsModel
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1"><i class="fas fa-chart-line text-primary"></i> Reports</h2>
+        <p class="text-muted mb-0">Comprehensive reporting and analytics</p>
+    </div>
+    <div>
+        <button class="btn btn-outline-primary btn-modern" onclick="exportAll()">
+            <i class="fas fa-download"></i> Export All
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Daily Collection Summary -->
+    <div class="col-md-4 mb-4">
+        <div class="card card-modern h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-tint fa-3x text-primary"></i>
+                </div>
+                <h5 class="card-title">Daily Collection Summary</h5>
+                <p class="card-text text-muted">By center, shift and farmer wise collection reports</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary btn-modern" onclick="generateReport('daily-collection')">
+                        <i class="fas fa-file-pdf"></i> Generate PDF
+                    </button>
+                    <button class="btn btn-outline-success btn-modern" onclick="exportReport('daily-collection', 'excel')">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Farmer Statements -->
+    <div class="col-md-4 mb-4">
+        <div class="card card-modern h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-users fa-3x text-success"></i>
+                </div>
+                <h5 class="card-title">Farmer Statements</h5>
+                <p class="card-text text-muted">Period-wise payouts and collection statements</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success btn-modern" onclick="generateReport('farmer-statements')">
+                        <i class="fas fa-file-pdf"></i> Generate PDF
+                    </button>
+                    <button class="btn btn-outline-success btn-modern" onclick="exportReport('farmer-statements', 'excel')">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- POS Sales -->
+    <div class="col-md-4 mb-4">
+        <div class="card card-modern h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-receipt fa-3x text-info"></i>
+                </div>
+                <h5 class="card-title">POS Sales</h5>
+                <p class="card-text text-muted">Items, tax, channel wise sales reports</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-info btn-modern" onclick="generateReport('pos-sales')">
+                        <i class="fas fa-file-pdf"></i> Generate PDF
+                    </button>
+                    <button class="btn btn-outline-success btn-modern" onclick="exportReport('pos-sales', 'excel')">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QC Exceptions -->
+    <div class="col-md-4 mb-4">
+        <div class="card card-modern h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning"></i>
+                </div>
+                <h5 class="card-title">QC Exceptions</h5>
+                <p class="card-text text-muted">Adulteration, low FAT and quality issues</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-warning btn-modern" onclick="generateReport('qc-exceptions')">
+                        <i class="fas fa-file-pdf"></i> Generate PDF
+                    </button>
+                    <button class="btn btn-outline-success btn-modern" onclick="exportReport('qc-exceptions', 'excel')">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Health -->
+    <div class="col-md-4 mb-4">
+        <div class="card card-modern h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-heartbeat fa-3x text-danger"></i>
+                </div>
+                <h5 class="card-title">Device Health</h5>
+                <p class="card-text text-muted">Uptime, firmware and device status reports</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-danger btn-modern" onclick="generateReport('device-health')">
+                        <i class="fas fa-file-pdf"></i> Generate PDF
+                    </button>
+                    <button class="btn btn-outline-success btn-modern" onclick="exportReport('device-health', 'excel')">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compliance -->
+    <div class="col-md-4 mb-4">
+        <div class="card card-modern h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-shield-alt fa-3x text-secondary"></i>
+                </div>
+                <h5 class="card-title">Compliance</h5>
+                <p class="card-text text-muted">IRN/eWay bill statuses and GST reports</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-secondary btn-modern" onclick="generateReport('compliance')">
+                        <i class="fas fa-file-pdf"></i> Generate PDF
+                    </button>
+                    <button class="btn btn-outline-success btn-modern" onclick="exportReport('compliance', 'excel')">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function generateReport(type) {
+    window.open('/Reports?handler=Generate&type=' + type + '&format=pdf', '_blank');
+}
+
+function exportReport(type, format) {
+    window.open('/Reports?handler=Export&type=' + type + '&format=' + format, '_blank');
+}
+
+function exportAll() {
+    if (confirm('This will generate all reports. Continue?')) {
+        window.open('/Reports?handler=ExportAll', '_blank');
+    }
+}
+</script>

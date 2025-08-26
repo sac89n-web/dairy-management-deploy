@@ -1,0 +1,36 @@
+@page
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container mt-5">
+    <h1 class="display-4">Dairy Milk Collection & Sales Management System</h1>
+    <p class="lead">Welcome to your dashboard. Use the navigation below to access key modules.</p>
+    <hr />
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <a class="btn btn-primary w-100" href="/MilkCollections">Milk Collections</a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a class="btn btn-success w-100" href="/Sales">Sales</a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a class="btn btn-info w-100" href="/Payments">Payments</a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a class="btn btn-warning w-100" href="/Reports">Reports</a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a class="btn btn-secondary w-100" href="/Settings">Settings</a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a class="btn btn-dark w-100" href="/MasterData">Master Data</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container { max-width: 900px; }
+    .display-4 { font-size: 2.5rem; }
+    .lead { font-size: 1.25rem; }
+</style>

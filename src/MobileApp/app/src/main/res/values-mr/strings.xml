@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">डेअरी व्यवस्थापन</string>
+    <string name="login">लॉगिन</string>
+    <string name="dashboard">डॅशबोर्ड</string>
+    <string name="total_farmers">एकूण शेतकरी</string>
+    <string name="total_customers">एकूण ग्राहक</string>
+    <string name="total_collectors">एकूण संकलक</string>
+    <string name="todays_sales">आजची विक्री</string>
+    <string name="paid_vs_due">पैसे दिले विरुद्ध बाकी</string>
+    <string name="total_milk_collected">एकूण दूध संकलन</string>
+    <string name="total_milk_sold">एकूण दूध विक्री</string>
+    <string name="milk_collection_entry">दूध संकलन नोंद</string>
+    <string name="quantity_ltr">प्रमाण (लिटर)</string>
+    <string name="fat_pct">फॅट %</string>
+    <string name="price_ltr">दर/लिटर</string>
+    <string name="submit">सबमिट करा</string>
+    <string name="invalid_credentials">अवैध ओळख</string>
+</resources>

@@ -1,0 +1,189 @@
+@page
+@model AnalyticsModel
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-chart-line text-primary"></i> Analytics & KPIs</h2>
+    <div>
+        <select class="form-select" onchange="changePeriod(this.value)">
+            <option value="7">Last 7 Days</option>
+            <option value="30" selected>Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+        </select>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5>Avg Daily Collection</h5>
+                <h3>@Model.AvgDailyCollection.ToString("F1") L</h3>
+                <small>@(Model.CollectionGrowth > 0 ? "+" : "")@Model.CollectionGrowth.ToString("F1")% vs last period</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5>Revenue per Liter</h5>
+                <h3>₹@Model.RevenuePerLiter.ToString("F2")</h3>
+                <small>@(Model.RevenueGrowth > 0 ? "+" : "")@Model.RevenueGrowth.ToString("F1")% vs last period</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5>Active Farmers</h5>
+                <h3>@Model.ActiveFarmers</h3>
+                <small>@Model.FarmerRetention.ToString("F1")% retention rate</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5>Avg Fat Content</h5>
+                <h3>@Model.AvgFatContent.ToString("F1")%</h3>
+                <small>Quality score: @Model.QualityScore.ToString("F1")/10</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Daily Collection Trend</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="collectionChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Revenue Trend</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Tables -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Top Performing Farmers</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Farmer</th>
+                            <th>Avg Daily (L)</th>
+                            <th>Avg Fat %</th>
+                            <th>Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var farmer in Model.TopFarmers)
+                        {
+                            <tr>
+                                <td>@farmer.farmer_name</td>
+                                <td>@farmer.avg_daily_quantity.ToString("F1")</td>
+                                <td>@farmer.avg_fat_percentage.ToString("F1")%</td>
+                                <td>₹@farmer.total_revenue.ToString("N0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Product Performance</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Units Sold</th>
+                            <th>Revenue</th>
+                            <th>Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var product in Model.ProductPerformance)
+                        {
+                            <tr>
+                                <td>@product.product_name</td>
+                                <td>@product.units_sold.ToString("F1")</td>
+                                <td>₹@product.revenue.ToString("N0")</td>
+                                <td>
+                                    <span class="badge @(product.growth > 0 ? "bg-success" : "bg-danger")">
+                                        @(product.growth > 0 ? "+" : "")@product.growth.ToString("F1")%
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Collection Chart
+const collectionCtx = document.getElementById('collectionChart').getContext('2d');
+new Chart(collectionCtx, {
+    type: 'line',
+    data: {
+        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartLabels)),
+        datasets: [{
+            label: 'Daily Collection (L)',
+            data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CollectionData)),
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Revenue Chart
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+new Chart(revenueCtx, {
+    type: 'line',
+    data: {
+        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartLabels)),
+        datasets: [{
+            label: 'Daily Revenue (₹)',
+            data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueData)),
+            borderColor: 'rgb(255, 99, 132)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+function changePeriod(days) {
+    window.location.href = `/Analytics?days=${days}`;
+}
+</script>

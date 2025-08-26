@@ -1,0 +1,26 @@
+@page
+@model ExpensesModel
+<h1>Expenses</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Branch</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Expenses)
+        {
+            <tr>
+                <td>@item.CategoryId</td>
+                <td>@item.BranchId</td>
+                <td>@item.Amount</td>
+                <td>@item.Date</td>
+                <td>@item.Notes</td>
+            </tr>
+        }
+    </tbody>
+</table>

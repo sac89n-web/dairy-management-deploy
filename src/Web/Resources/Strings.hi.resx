@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="SystemName" xml:space="preserve">
+    <value>डेयरी प्रबंधन प्रणाली</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>डैशबोर्ड</value>
+  </data>
+  <data name="TotalMilkCollected" xml:space="preserve">
+    <value>दूध संग्रह</value>
+  </data>
+  <data name="TotalMilkSold" xml:space="preserve">
+    <value>बिक्री</value>
+  </data>
+  <data name="Payments" xml:space="preserve">
+    <value>भुगतान</value>
+  </data>
+  <data name="Reports" xml:space="preserve">
+    <value>रिपोर्ट</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>सेटिंग्स</value>
+  </data>
+  <data name="Farmer" xml:space="preserve">
+    <value>किसान</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>मात्रा</value>
+  </data>
+  <data name="Amount" xml:space="preserve">
+    <value>राशि</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>दिनांक</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>कार्य</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>जोड़ें</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>संपादित करें</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>हटाएं</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>सहेजें</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>रद्द करें</value>
+  </data>
+  <data name="FarmerName" xml:space="preserve">
+    <value>किसान का नाम</value>
+  </data>
+  <data name="Rupees" xml:space="preserve">
+    <value>₹</value>
+  </data>
+  <data name="Liters" xml:space="preserve">
+    <value>लीटर</value>
+  </data>
+  <data name="Rate" xml:space="preserve">
+    <value>दर</value>
+  </data>
+  <data name="TodayCollection" xml:space="preserve">
+    <value>आज का संग्रह</value>
+  </data>
+  <data name="TodaySales" xml:space="preserve">
+    <value>आज की बिक्री</value>
+  </data>
+  <data name="ActiveFarmers" xml:space="preserve">
+    <value>सक्रिय किसान</value>
+  </data>
+  <data name="WeighingMachine" xml:space="preserve">
+    <value>वजन मशीन</value>
+  </data>
+</root>

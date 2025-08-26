@@ -1,0 +1,11 @@
+@page
+@model ReportsExportModel
+<h1>Export Reports</h1>
+<form method="post">
+    <button name="exportType" value="excel">Export Excel</button>
+    <button name="exportType" value="pdf">Export PDF</button>
+</form>
+@if (Model.FileBytes != null)
+{
+    <a href="@Model.DownloadUrl">Download Report</a>
+}

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="SystemName" xml:space="preserve">
+    <value>Dairy Management System</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="TotalMilkCollected" xml:space="preserve">
+    <value>Milk Collections</value>
+  </data>
+  <data name="TotalMilkSold" xml:space="preserve">
+    <value>Sales</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Payments" xml:space="preserve">
+    <value>Payments</value>
+  </data>
+  <data name="Reports" xml:space="preserve">
+    <value>Reports</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>Welcome to Dairy Management System</value>
+  </data>
+  <data name="TodayCollection" xml:space="preserve">
+    <value>Today's Collection</value>
+  </data>
+  <data name="TodaySales" xml:space="preserve">
+    <value>Today's Sales</value>
+  </data>
+  <data name="ActiveFarmers" xml:space="preserve">
+    <value>Active Farmers</value>
+  </data>
+  <data name="PendingPayments" xml:space="preserve">
+    <value>Pending Payments</value>
+  </data>
+  <data name="Liters" xml:space="preserve">
+    <value>Liters</value>
+  </data>
+  <data name="Rupees" xml:space="preserve">
+    <value>₹</value>
+  </data>
+  <data name="FarmerName" xml:space="preserve">
+    <value>Farmer Name</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="Rate" xml:space="preserve">
+    <value>Rate</value>
+  </data>
+  <data name="Amount" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+</root>

@@ -1,0 +1,234 @@
+@page
+@model MilkCollectionsModel
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-fill-drip text-primary"></i> Total Milk Collected</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+    <i class="fas fa-plus"></i> Add
+    </button>
+</div>
+
+@if(TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5>Morning Shift</h5>
+                <h3>@Model.MorningSummary.TotalQuantity.ToString("F1") L</h3>
+                <small>@Model.MorningSummary.TotalAmount.ToString("C")</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5>Evening Shift</h5>
+                <h3>@Model.EveningSummary.TotalQuantity.ToString("F1") L</h3>
+                <small>@Model.EveningSummary.TotalAmount.ToString("C")</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5>Daily Total</h5>
+                <h3>@((Model.MorningSummary.TotalQuantity + Model.EveningSummary.TotalQuantity).ToString("F1")) L</h3>
+                <small>@((Model.MorningSummary.TotalAmount + Model.EveningSummary.TotalAmount).ToString("C"))</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Farmer Name</th>
+                    <th>Shift</th>
+                    <th>Quantity</th>
+                    <th>Fat %</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Payment Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var item in Model.Collections)
+                {
+                    <tr>
+                        <td>@item.farmer_name</td>
+                        <td><span class="badge @(item.shift_name == "Morning" ? "bg-primary" : "bg-success")">@item.shift_name</span></td>
+                        <td>@item.quantity.ToString("F1") L</td>
+                        <td>@item.fat_percentage.ToString("F1")%</td>
+                        <td>₹@item.total_amount.ToString("N0")</td>
+                        <td>@item.collection_date.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <span class="badge @(item.payment_status == "Paid" ? "bg-success" : "bg-warning")">
+                                @item.payment_status
+                            </span>
+                            @if(item.payment_date.HasValue)
+                            {
+                                <br><small class="text-muted">@item.payment_date.Value.ToString("dd/MM/yyyy")</small>
+                            }
+                        </td>
+                        <td>
+                            @if(item.payment_status != "Paid")
+                            {
+                                <button class="btn btn-sm btn-warning" onclick="editItem(@item.id)" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteItem(@item.id)" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <span class="text-muted"><i class="fas fa-lock"></i> Paid</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Add">
+                <div class="modal-header">
+                    <h5>Add Total Milk Collected</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Farmer Name</label>
+                        <select class="form-control" name="FarmerId" required>
+                            <option value="">Select Farmer</option>
+                            @foreach(var farmer in Model.Farmers)
+                            {
+                                <option value="@farmer.id">@farmer.name (@farmer.code) - @farmer.village</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Shift</label>
+                        <select class="form-control" name="ShiftId" required>
+                            <option value="">Select Shift</option>
+                            @foreach(var shift in Model.Shifts)
+                            {
+                                <option value="@shift.id">@shift.name (@shift.start_time - @shift.end_time)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Quantity (Liters)</label>
+                        <input type="number" step="0.1" min="0.1" max="999" class="form-control" name="Quantity" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fat %</label>
+                        <input type="number" step="0.1" min="0" max="15" class="form-control" name="FatPercentage" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rate</label>
+                        <input type="number" step="0.01" class="form-control" name="RatePerLiter" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Update">
+                <input type="hidden" id="editId" name="Id">
+                <div class="modal-header">
+                    <h5>Edit Collection</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Farmer Name</label>
+                        <select class="form-control" id="editFarmerId" name="FarmerId" required>
+                            @foreach(var farmer in Model.Farmers)
+                            {
+                                <option value="@farmer.id">@farmer.name (@farmer.code) - @farmer.village</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Shift</label>
+                        <select class="form-control" id="editShiftId" name="ShiftId" required>
+                            @foreach(var shift in Model.Shifts)
+                            {
+                                <option value="@shift.id">@shift.name (@shift.start_time - @shift.end_time)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Quantity (Liters)</label>
+                        <input type="number" step="0.1" class="form-control" id="editQuantity" name="Quantity" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fat %</label>
+                        <input type="number" step="0.1" class="form-control" id="editFatPercentage" name="FatPercentage" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rate</label>
+                        <input type="number" step="0.01" class="form-control" id="editRatePerLiter" name="RatePerLiter" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteItem(id) {
+    if(confirm('Are you sure you want to delete this collection?')) {
+        fetch('/MilkCollections?handler=Delete&id=' + id, { method: 'POST' })
+        .then(() => location.reload())
+        .catch(() => alert('Error deleting item'));
+    }
+}
+
+async function editItem(id) {
+    try {
+        const response = await fetch(`/MilkCollections?handler=GetCollection&id=${id}`);
+        const collection = await response.json();
+        
+        document.getElementById('editId').value = collection.id;
+        document.getElementById('editFarmerId').value = collection.farmer_id;
+        document.getElementById('editShiftId').value = collection.shift_id;
+        document.getElementById('editQuantity').value = collection.quantity;
+        document.getElementById('editFatPercentage').value = collection.fat_percentage;
+        document.getElementById('editRatePerLiter').value = collection.rate_per_liter;
+        
+        new bootstrap.Modal(document.getElementById('editModal')).show();
+    } catch (error) {
+        alert('Error loading collection details');
+    }
+}
+</script>

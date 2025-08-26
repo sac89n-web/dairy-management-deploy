@@ -1,0 +1,338 @@
+@page
+@model WeighingMachineModel
+@{
+    ViewData["Title"] = "Milk Collection";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1"><i class="fas fa-weight text-primary"></i> New Pour Session</h2>
+        <p class="text-muted mb-0">Real-time milk collection with weighing machine integration</p>
+    </div>
+    <div>
+        <button class="btn btn-outline-primary btn-modern me-2" onclick="scanFarmer()">
+            <i class="fas fa-qrcode"></i> Scan Farmer
+        </button>
+        <button class="btn btn-primary btn-modern" onclick="printSlip()">
+            <i class="fas fa-receipt"></i> Print Slip
+        </button>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Farmer Information -->
+    <div class="col-md-4 mb-3">
+        <div class="card card-modern h-100">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-user text-primary"></i> Farmer</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label text-muted small">FARMER ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="farmerId" value="FMR-000123" placeholder="Enter or scan farmer ID">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted small">NAME</label>
+                        <input type="text" class="form-control" id="farmerName" value="Shri Ram Patil" readonly>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small">CATEGORY</label>
+                        <select class="form-select" id="category">
+                            <option value="cow" selected>Cow</option>
+                            <option value="buffalo">Buffalo</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small">SHIFT</label>
+                        <select class="form-select" id="shift">
+                            <option value="morning" selected>Morning</option>
+                            <option value="evening">Evening</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3 p-2 bg-light rounded">
+                    <small class="text-success">
+                        <i class="fas fa-shield-check"></i> Bank verified • Penny-drop on 2025-08-10
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Readings -->
+    <div class="col-md-4 mb-3">
+        <div class="card card-modern h-100">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-flask text-primary"></i> Device Readings</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-8">
+                        <label class="form-label text-muted small">WEIGHT (KG) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="weight" value="12.450" step="0.001">
+                    </div>
+                    <div class="col-4 d-flex align-items-end">
+                        <button class="btn btn-outline-success w-100" id="readWeightBtn" onclick="readWeight()">
+                            <i class="fas fa-weight"></i> Read
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small">FAT %</label>
+                        <input type="number" class="form-control" id="fat" value="4.1" step="0.1">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small">SNF %</label>
+                        <input type="number" class="form-control" id="snf" value="8.6" step="0.1">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small">TEMPERATURE °C</label>
+                        <input type="number" class="form-control" id="temperature" value="7.2" step="0.1">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small">DENSITY</label>
+                        <input type="number" class="form-control" id="density" value="1.029" step="0.001">
+                    </div>
+                </div>
+                <div class="mt-3" id="deviceStatus">
+                    <small class="text-muted">
+                        <i class="fas fa-circle text-success"></i> Device connected • Last reading: 2s ago
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="col-md-4 mb-3">
+        <div class="card card-modern h-100">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-calculator text-primary"></i> Pricing</h5>
+            </div>
+            <div class="card-body">
+                <div class="pricing-details">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Rate (₹/kg)</span>
+                        <span class="fw-bold" id="rateDisplay">37.31</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Amount (₹)</span>
+                        <span class="fw-bold fs-5" id="amountDisplay">464.51</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Incentive</span>
+                        <span class="text-success">₹ 5.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Penalties</span>
+                        <span class="text-danger">₹ 0.00</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="fw-bold">Total Amount</span>
+                        <span class="fw-bold fs-4 text-primary" id="totalDisplay">₹ 469.51</span>
+                    </div>
+                </div>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary btn-modern" onclick="savePour()">
+                        <i class="fas fa-tint"></i> Save Pour
+                    </button>
+                    <button class="btn btn-outline-secondary btn-modern" onclick="queueOffline()">
+                        <i class="fas fa-cloud-upload-alt"></i> Queue (Offline)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Pours -->
+<div class="card card-modern">
+    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-history text-primary"></i> Recent Pours</h5>
+        <div class="d-flex gap-2">
+            <input type="text" class="form-control form-control-sm" placeholder="Search farmer or can id" style="width: 200px;">
+            <button class="btn btn-outline-primary btn-sm btn-modern">
+                <i class="fas fa-search"></i> Find
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Time</th>
+                        <th>Farmer</th>
+                        <th>Weight</th>
+                        <th>FAT</th>
+                        <th>SNF</th>
+                        <th>Rate</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>07:11 AM</td>
+                        <td>FMR-001 • S. R. Patil</td>
+                        <td>11.1 kg</td>
+                        <td>4.1%</td>
+                        <td>8.7%</td>
+                        <td>₹ 29.50</td>
+                        <td>₹ 330</td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-receipt"></i> Print
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>07:12 AM</td>
+                        <td>FMR-002 • S. R. Patil</td>
+                        <td>11.2 kg</td>
+                        <td>4.2%</td>
+                        <td>8.8%</td>
+                        <td>₹ 30.50</td>
+                        <td>₹ 340</td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-receipt"></i> Print
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>07:13 AM</td>
+                        <td>FMR-003 • S. R. Patil</td>
+                        <td>11.3 kg</td>
+                        <td>4.3%</td>
+                        <td>8.9%</td>
+                        <td>₹ 31.50</td>
+                        <td>₹ 350</td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-receipt"></i> Print
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+let isWeighingStable = false;
+
+// Real-time weight reading simulation
+function readWeight() {
+    const btn = document.getElementById('readWeightBtn');
+    const weightInput = document.getElementById('weight');
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reading...';
+    btn.disabled = true;
+    
+    // Simulate weight reading
+    setTimeout(() => {
+        const newWeight = (Math.random() * 5 + 10).toFixed(3);
+        weightInput.value = newWeight;
+        btn.innerHTML = '<i class="fas fa-weight"></i> Stable';
+        btn.classList.remove('btn-outline-success');
+        btn.classList.add('btn-success');
+        isWeighingStable = true;
+        calculateAmount();
+        btn.disabled = false;
+    }, 2000);
+}
+
+// Calculate amount based on FAT/SNF
+function calculateAmount() {
+    const weight = parseFloat(document.getElementById('weight').value) || 0;
+    const fat = parseFloat(document.getElementById('fat').value) || 0;
+    const snf = parseFloat(document.getElementById('snf').value) || 0;
+    
+    // Rate calculation: FAT * 1.5 + SNF * 0.6 + 26
+    const rate = (fat * 1.5 + snf * 0.6 + 26).toFixed(2);
+    const amount = (weight * rate).toFixed(2);
+    const total = (parseFloat(amount) + 5.00).toFixed(2); // Adding incentive
+    
+    document.getElementById('rateDisplay').textContent = rate;
+    document.getElementById('amountDisplay').textContent = amount;
+    document.getElementById('totalDisplay').textContent = '₹ ' + total;
+}
+
+// Auto-calculate on input change
+document.getElementById('weight').addEventListener('input', calculateAmount);
+document.getElementById('fat').addEventListener('input', calculateAmount);
+document.getElementById('snf').addEventListener('input', calculateAmount);
+
+function scanFarmer() {
+    // Simulate QR code scanning
+    alert('QR Scanner activated. Point camera at farmer QR code.');
+}
+
+function savePour() {
+    if (!isWeighingStable) {
+        alert('Please read weight from device first');
+        return;
+    }
+    
+    const data = {
+        farmerId: document.getElementById('farmerId').value,
+        weight: document.getElementById('weight').value,
+        fat: document.getElementById('fat').value,
+        snf: document.getElementById('snf').value,
+        temperature: document.getElementById('temperature').value,
+        density: document.getElementById('density').value,
+        shift: document.getElementById('shift').value,
+        category: document.getElementById('category').value
+    };
+    
+    // Save collection
+    fetch('/api/collections/quick-add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert('Collection saved successfully!');
+            resetForm();
+        } else {
+            alert('Error saving collection: ' + result.message);
+        }
+    });
+}
+
+function queueOffline() {
+    // Queue for offline sync
+    localStorage.setItem('offlineCollection_' + Date.now(), JSON.stringify({
+        farmerId: document.getElementById('farmerId').value,
+        weight: document.getElementById('weight').value,
+        fat: document.getElementById('fat').value,
+        snf: document.getElementById('snf').value,
+        timestamp: new Date().toISOString()
+    }));
+    alert('Collection queued for offline sync');
+    resetForm();
+}
+
+function printSlip() {
+    window.print();
+}
+
+function resetForm() {
+    document.getElementById('weight').value = '';
+    document.getElementById('fat').value = '';
+    document.getElementById('snf').value = '';
+    document.getElementById('readWeightBtn').innerHTML = '<i class="fas fa-weight"></i> Read';
+    document.getElementById('readWeightBtn').classList.remove('btn-success');
+    document.getElementById('readWeightBtn').classList.add('btn-outline-success');
+    isWeighingStable = false;
+    calculateAmount();
+}
+
+// Initialize
+calculateAmount();
+</script>

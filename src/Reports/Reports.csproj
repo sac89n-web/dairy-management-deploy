@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<RootNamespace>Dairy.Reports</RootNamespace>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="ClosedXML" Version="0.102.0" />
+		<PackageReference Include="QuestPDF" Version="2024.3.0" />
+	</ItemGroup>
+</Project>

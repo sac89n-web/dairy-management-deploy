@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="SystemName" xml:space="preserve">
+    <value>Dairy Management System</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="TotalFarmers" xml:space="preserve">
+    <value>Total Farmers</value>
+  </data>
+  <data name="TotalCustomers" xml:space="preserve">
+    <value>Total Customers</value>
+  </data>
+  <data name="TotalCollectors" xml:space="preserve">
+    <value>Total Collectors</value>
+  </data>
+  <data name="TodaysSales" xml:space="preserve">
+    <value>Today's Sales</value>
+  </data>
+  <data name="PaidVsDue" xml:space="preserve">
+    <value>Paid vs Due</value>
+  </data>
+  <data name="TotalMilkCollected" xml:space="preserve">
+    <value>Total Milk Collected</value>
+  </data>
+  <data name="TotalMilkSold" xml:space="preserve">
+    <value>Total Milk Sold</value>
+  </data>
+  <data name="Error_DuplicateCollection" xml:space="preserve">
+    <value>Duplicate collection for same farmer and shift. Overwrite?</value>
+  </data>
+  <data name="Error_FatPctRange" xml:space="preserve">
+    <value>Fat % must be between 0 and 15.</value>
+  </data>
+  <data name="Error_QuantityRange" xml:space="preserve">
+    <value>Quantity must be between 0 and 999.</value>
+  </data>
+  <data name="Error_PaidExceedsDue" xml:space="preserve">
+    <value>Paid amount cannot exceed due amount.</value>
+  </data>
+  <data name="Error_MissingRateChart" xml:space="preserve">
+    <value>Missing rate chart for selected shift.</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>Contact</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="ExportExcel" xml:space="preserve">
+    <value>Export to Excel</value>
+  </data>
+  <data name="ExportPDF" xml:space="preserve">
+    <value>Export to PDF</value>
+  </data>
+</root>

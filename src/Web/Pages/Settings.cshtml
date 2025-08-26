@@ -1,0 +1,117 @@
+@page
+@model SettingsModel
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+    <h2 class="mb-1"><i class="fas fa-cog text-primary"></i> Settings</h2>
+        <p class="text-muted mb-0">System configuration and database settings</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- System Settings -->
+    <div class="col-md-6 mb-4">
+        <div class="card card-modern">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-building text-primary"></i> System Settings</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="SystemSettings">
+                    <div class="mb-3">
+                        <label class="form-label">System Name</label>
+                        <input asp-for="SystemName" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contact</label>
+                        <input asp-for="Contact" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-modern">
+                        <i class="fas fa-save"></i> Save System Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Database Settings -->
+    <div class="col-md-6 mb-4">
+        <div class="card card-modern">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-database text-primary"></i> Database Settings</h5>
+            </div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(Model.DatabaseMessage))
+                {
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        @Model.DatabaseMessage
+                    </div>
+                }
+                
+                <form method="post" asp-page-handler="DatabaseSettings">
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-server me-1"></i>Database Host
+                        </label>
+                        <input type="text" name="Host" value="@Model.DbHost" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-database me-1"></i>Database Name
+                        </label>
+                        <input type="text" name="Database" value="@Model.DbDatabase" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-user me-1"></i>Username
+                        </label>
+                        <input type="text" name="Username" value="@Model.DbUsername" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-lock me-1"></i>Password
+                        </label>
+                        <input type="password" name="Password" class="form-control" placeholder="Enter new password to change">
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="RememberCredentials" value="true" @(Model.RememberCredentials ? "checked" : "") id="rememberDbCheck">
+                            <label class="form-check-label" for="rememberDbCheck">
+                                Remember credentials for auto-reconnect
+                            </label>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-modern">
+                            <i class="fas fa-plug"></i> Test & Save Connection
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-modern" onclick="clearCredentials()">
+                            <i class="fas fa-trash"></i> Clear Saved Credentials
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function clearCredentials() {
+    if (confirm('Are you sure you want to clear saved database credentials?')) {
+        const response = await fetch('/Settings?handler=ClearCredentials', {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            }
+        });
+        if (response.ok) {
+            alert('Credentials cleared successfully');
+            location.reload();
+        }
+    }
+}
+</script>

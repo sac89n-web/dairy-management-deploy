@@ -1,0 +1,119 @@
+@page
+@model RoutesModel
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-route text-primary"></i> Route Management</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRouteModal">
+        <i class="fas fa-plus"></i> Add Route
+    </button>
+</div>
+
+<div class="row mb-4">
+    @foreach(var route in Model.Routes)
+    {
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>@route.name</h5>
+                    <span class="badge @(route.status == "Active" ? "bg-success" : "bg-secondary")">@route.status</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Driver:</strong> @route.driver_name</p>
+                    <p><strong>Vehicle:</strong> @route.vehicle_number</p>
+                    <p><strong>Farmers:</strong> @route.farmer_count</p>
+                    <p><strong>Distance:</strong> @route.total_distance km</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success btn-sm" onclick="startRoute(@route.id)">Start Route</button>
+                        <button class="btn btn-info btn-sm" onclick="trackRoute(@route.id)">Track</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Today's Collections by Route</h5>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Route</th>
+                    <th>Collections</th>
+                    <th>Total Quantity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var summary in Model.RouteSummaries)
+                {
+                    <tr>
+                        <td>@summary.route_name</td>
+                        <td>@summary.collection_count</td>
+                        <td>@summary.total_quantity L</td>
+                        <td>
+                            <span class="badge @(summary.status == "Completed" ? "bg-success" : "bg-warning")">
+                                @summary.status
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewDetails(@summary.route_id)">
+                                View Details
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Route Modal -->
+<div class="modal fade" id="addRouteModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="AddRoute">
+                <div class="modal-header">
+                    <h5>Add New Route</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Route Name</label>
+                        <input type="text" class="form-control" name="Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Driver Name</label>
+                        <input type="text" class="form-control" name="DriverName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vehicle Number</label>
+                        <input type="text" class="form-control" name="VehicleNumber" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function startRoute(routeId) {
+    fetch(`/Routes?handler=StartRoute&id=${routeId}`, { method: 'POST' })
+    .then(() => location.reload());
+}
+
+function trackRoute(routeId) {
+    window.open(`/Routes/Track/${routeId}`, '_blank');
+}
+
+function viewDetails(routeId) {
+    window.location.href = `/Routes/Details/${routeId}`;
+}
+</script>

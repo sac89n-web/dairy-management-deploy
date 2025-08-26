@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Dairy Management</string>
+    <string name="login">Login</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="total_farmers">Total Farmers</string>
+    <string name="total_customers">Total Customers</string>
+    <string name="total_collectors">Total Collectors</string>
+    <string name="todays_sales">Today's Sales</string>
+    <string name="paid_vs_due">Paid vs Due</string>
+    <string name="total_milk_collected">Total Milk Collected</string>
+    <string name="total_milk_sold">Total Milk Sold</string>
+    <string name="milk_collection_entry">Milk Collection Entry</string>
+    <string name="quantity_ltr">Quantity (Ltr)</string>
+    <string name="fat_pct">Fat %</string>
+    <string name="price_ltr">Price/Ltr</string>
+    <string name="submit">Submit</string>
+    <string name="invalid_credentials">Invalid credentials</string>
+</resources>

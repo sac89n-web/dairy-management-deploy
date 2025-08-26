@@ -1,0 +1,197 @@
+@page
+@model SalesModel
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1"><i class="fas fa-receipt text-primary"></i> POS & Sales</h2>
+        <p class="text-muted mb-0">Point of sale system with real-time billing</p>
+    </div>
+    <div>
+        <button class="btn btn-outline-primary btn-modern me-2" onclick="generateZReport()">
+            <i class="fas fa-download"></i> Z-Report
+        </button>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- POS Cart -->
+    <div class="col-md-8 mb-3">
+        <div class="card card-modern h-100">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-shopping-cart text-primary"></i> Cart</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label text-muted small">ITEM</label>
+                        <select class="form-select" id="itemSelect">
+                            <option>Full Cream Milk 1L</option>
+                            <option>Toned Milk 500ml</option>
+                            <option>Paneer 200g</option>
+                            <option>Butter 100g</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted small">QTY</label>
+                        <input type="number" class="form-control" id="quantity" value="1" min="1">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small">PRICE (₹)</label>
+                        <input type="number" class="form-control" id="price" value="54" step="0.01">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button class="btn btn-outline-primary w-100" onclick="scanBarcode()">
+                            <i class="fas fa-barcode"></i> Scan
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover" id="cartTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Rate</th>
+                                <th>Amount</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Full Cream Milk 1L</td>
+                                <td>1</td>
+                                <td>₹ 54</td>
+                                <td>₹ 54</td>
+                                <td>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="removeItem(this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment -->
+    <div class="col-md-4 mb-3">
+        <div class="card card-modern h-100">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-credit-card text-primary"></i> Payment</h5>
+            </div>
+            <div class="card-body">
+                <div class="pricing-details mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span class="fw-bold" id="subtotal">₹ 54</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">GST (5%)</span>
+                        <span id="gst">₹ 3</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="fw-bold fs-5">Total</span>
+                        <span class="fw-bold fs-4 text-primary" id="total">₹ 57</span>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary btn-modern" onclick="showUPIQR()">
+                        <i class="fas fa-qrcode"></i> UPI QR
+                    </button>
+                    <button class="btn btn-outline-secondary btn-modern" onclick="processCard()">
+                        <i class="fas fa-credit-card"></i> Card
+                    </button>
+                    <button class="btn btn-outline-success btn-modern" onclick="processCash()">
+                        <i class="fas fa-money-bill"></i> Cash
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Sales -->
+<div class="card card-modern">
+    <div class="card-header bg-transparent border-0">
+        <h5 class="mb-0"><i class="fas fa-history text-primary"></i> Recent Sales</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Time</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Amount</th>
+                        <th>Payment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var sale in Model.Sales.Take(10))
+                    {
+                        <tr>
+                            <td>@sale.sale_date.ToString("HH:mm")</td>
+                            <td>@sale.customer_name</td>
+                            <td>@sale.quantity.ToString("F1") L</td>
+                            <td>₹ @sale.total_amount.ToString("N0")</td>
+                            <td><span class="badge bg-success">Paid</span></td>
+                            <td>
+                                <button class="btn btn-outline-primary btn-sm" onclick="printReceipt(@sale.id)">
+                                    <i class="fas fa-receipt"></i> Receipt
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function scanBarcode() {
+    alert('Barcode scanner activated. Scan product barcode.');
+}
+
+function removeItem(btn) {
+    btn.closest('tr').remove();
+    calculateTotal();
+}
+
+function calculateTotal() {
+    let subtotal = 54; // Calculate from cart items
+    let gst = Math.round(subtotal * 0.05);
+    let total = subtotal + gst;
+    
+    document.getElementById('subtotal').textContent = '₹ ' + subtotal;
+    document.getElementById('gst').textContent = '₹ ' + gst;
+    document.getElementById('total').textContent = '₹ ' + total;
+}
+
+function showUPIQR() {
+    alert('UPI QR Code displayed for payment');
+}
+
+function processCard() {
+    alert('Card payment terminal activated');
+}
+
+function processCash() {
+    alert('Cash payment recorded');
+}
+
+function generateZReport() {
+    window.open('/Reports/Export?type=z-report', '_blank');
+}
+
+function printReceipt(saleId) {
+    window.open('/Sales/Receipt/' + saleId, '_blank');
+}
+</script>

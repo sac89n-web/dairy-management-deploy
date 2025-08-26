@@ -1,0 +1,15 @@
+@page
+@model DatabaseSetupModel
+
+<div class="container mt-4">
+    <h2>Database Setup</h2>
+    
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div class="alert alert-info">@Model.Message</div>
+    }
+    
+    <form method="post">
+        <button type="submit" class="btn btn-primary">Create Required Tables</button>
+    </form>
+</div>

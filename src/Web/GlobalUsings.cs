@@ -1,0 +1,9 @@
+global using System;
+global using System.Linq;
+global using System.Collections.Generic;
+global using System.Threading.Tasks;
+global using Dairy.Application;
+global using Dairy.Domain;
+global using Dairy.Infrastructure;
+global using Dairy.Reports;
+global using Dapper;

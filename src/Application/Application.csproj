@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Dairy.Application</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Domain/Domain.csproj" />
+  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
+  <PackageReference Include="FluentValidation" Version="11.6.0" />
+  <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.0" />
+  <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+  <PackageReference Include="Npgsql" Version="8.0.3" />
+  </ItemGroup>
+</Project>

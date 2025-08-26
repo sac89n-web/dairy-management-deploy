@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="SystemName" xml:space="preserve">
+    <value>डेयरी प्रबंधन प्रणाली</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>लॉगिन</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>डैशबोर्ड</value>
+  </data>
+  <data name="TotalFarmers" xml:space="preserve">
+    <value>कुल किसान</value>
+  </data>
+  <data name="TotalCustomers" xml:space="preserve">
+    <value>कुल ग्राहक</value>
+  </data>
+  <data name="TotalCollectors" xml:space="preserve">
+    <value>कुल संग्रहकर्ता</value>
+  </data>
+  <data name="TodaysSales" xml:space="preserve">
+    <value>आज की बिक्री</value>
+  </data>
+  <data name="PaidVsDue" xml:space="preserve">
+    <value>भुगतान बनाम बकाया</value>
+  </data>
+  <data name="TotalMilkCollected" xml:space="preserve">
+    <value>कुल दूध संग्रहित</value>
+  </data>
+  <data name="TotalMilkSold" xml:space="preserve">
+    <value>कुल दूध बेचा गया</value>
+  </data>
+  <data name="Error_DuplicateCollection" xml:space="preserve">
+    <value>एक ही किसान और शिफ्ट के लिए डुप्लिकेट संग्रह। अधिलेखित करें?</value>
+  </data>
+  <data name="Error_FatPctRange" xml:space="preserve">
+    <value>फैट % 0 से 15 के बीच होना चाहिए।</value>
+  </data>
+  <data name="Error_QuantityRange" xml:space="preserve">
+    <value>मात्रा 0 से 999 के बीच होनी चाहिए।</value>
+  </data>
+  <data name="Error_PaidExceedsDue" xml:space="preserve">
+    <value>भुगतान राशि बकाया राशि से अधिक नहीं हो सकती।</value>
+  </data>
+  <data name="Error_MissingRateChart" xml:space="preserve">
+    <value>चयनित शिफ्ट के लिए दर चार्ट उपलब्ध नहीं है।</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>सेटिंग्स</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>संपर्क</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>पता</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>भाषा</value>
+  </data>
+  <data name="ExportExcel" xml:space="preserve">
+    <value>एक्सेल में निर्यात करें</value>
+  </data>
+  <data name="ExportPDF" xml:space="preserve">
+    <value>पीडीएफ में निर्यात करें</value>
+  </data>
+</root>
