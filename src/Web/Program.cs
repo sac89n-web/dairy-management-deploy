@@ -15,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure QuestPDF license
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
-// Serilog
+// Serilog - Console only for cloud
 builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()
     .MinimumLevel.Information());
@@ -58,12 +58,12 @@ builder.Services.AddHttpContextAccessor();
 // Database and Infrastructure Services
 builder.Services.AddSingleton<SqlConnectionFactory>(sp =>
 {
-    // Try Railway connection string first, then fallback to local
+    // Try environment variable first, then config
     var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? 
                           builder.Configuration.GetConnectionString("Postgres") ?? 
                           "Host=localhost;Database=postgres;Username=admin;Password=admin123;SearchPath=dairy";
     
-    // Convert Railway DATABASE_URL format if needed
+    // Convert PostgreSQL URL format if needed
     if (connectionString.StartsWith("postgresql://"))
     {
         var uri = new Uri(connectionString);
@@ -108,7 +108,7 @@ var app = builder.Build();
 // Session middleware
 app.UseSession();
 
-// Skip authentication in production for now
+// Skip authentication in production
 if (!app.Environment.IsProduction())
 {
     app.Use(async (context, next) =>
