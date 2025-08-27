@@ -219,6 +219,25 @@ try
         }
     });
 
+    // Dashboard endpoint
+    app.MapGet("/dashboard", () => Results.Ok(new {
+        title = "Dairy Management Dashboard",
+        timestamp = DateTime.UtcNow,
+        status = "Active",
+        modules = new[] {
+            "Milk Collections",
+            "Sales Management", 
+            "Farmer Payments",
+            "Customer Payments",
+            "Reports & Analytics"
+        },
+        apiEndpoints = new[] {
+            "/api/milk-collections",
+            "/api/sales",
+            "/api/test-db"
+        }
+    }));
+
     // Health check endpoint
     app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 }
