@@ -31,13 +31,7 @@ public class DashboardModel : BasePageModel
 
     public async Task OnGetAsync()
     {
-        // Use session connection string if available
-        var sessionConnectionString = HttpContext.Session.GetString("ConnectionString");
-        var connectionString = !string.IsNullOrEmpty(sessionConnectionString) 
-            ? sessionConnectionString 
-            : "Host=localhost;Database=postgres;Username=admin;Password=admin123;SearchPath=dairy";
-            
-        using var connection = new Npgsql.NpgsqlConnection(connectionString);
+        using var connection = (NpgsqlConnection)_connectionFactory.CreateConnection();
         
         // Today's metrics
         var today = DateTime.Today;
