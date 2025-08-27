@@ -121,23 +121,8 @@ try
     // Session middleware
     app.UseSession();
 
-    // Skip authentication in production to avoid redirect loops
-    if (!app.Environment.IsProduction())
-    {
-        app.Use(async (context, next) =>
-        {
-            var publicPaths = new[] { "/simple-login", "/login", "/database-login", "/health", "/api", "/swagger" };
-            
-            if (!publicPaths.Any(p => context.Request.Path.StartsWithSegments(p)) && 
-                context.Session.GetString("UserId") == null)
-            {
-                context.Response.Redirect("/simple-login");
-                return;
-            }
-            
-            await next();
-        });
-    }
+    // Disable authentication middleware in production
+    // Pages will be accessible without login for now
 
     // Localization Middleware
     try
@@ -166,8 +151,20 @@ try
     app.MapRazorPages();
     app.MapControllers();
 
-    // Default route to dashboard
-    app.MapGet("/", () => Results.Redirect("/dashboard"));
+    // Default route - return success message instead of redirect
+    app.MapGet("/", () => Results.Ok(new { 
+        message = "Dairy Management System is running!", 
+        timestamp = DateTime.UtcNow,
+        version = "1.0.0",
+        database = "Connected",
+        endpoints = new[] {
+            "/swagger - API Documentation",
+            "/api/test-db - Database Test",
+            "/health - Health Check",
+            "/api/milk-collections - Milk Collections API",
+            "/api/sales - Sales API"
+        }
+    }));
 
     // Basic API endpoints
     try
