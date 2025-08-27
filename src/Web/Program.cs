@@ -171,6 +171,22 @@ app.MapGet("/db-test", async (SqlConnectionFactory dbFactory) => {
     }
 });
 
+app.MapGet("/setup-db", async (SqlConnectionFactory dbFactory) => {
+    try {
+        using var connection = (NpgsqlConnection)dbFactory.CreateConnection();
+        await connection.OpenAsync();
+        
+        var setupSql = System.IO.File.ReadAllText("render_schema.sql");
+        
+        using var cmd = new NpgsqlCommand(setupSql, connection);
+        await cmd.ExecuteNonQueryAsync();
+        
+        return Results.Json(new { success = true, message = "Database setup completed" });
+    } catch (Exception ex) {
+        return Results.Json(new { success = false, error = ex.Message });
+    }
+});
+
 // CRITICAL: Bind to Render's PORT
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 app.Urls.Add($"http://0.0.0.0:{port}");
