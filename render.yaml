@@ -11,7 +11,7 @@ services:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: DATABASE_URL
-        value: postgresql://admin:pJXUUv92yTwCRIfQGKM4E1ncz5yrdcuh@dpg-d2n0vah5pdvs739dpqe0-a:5432/dairy_5pkv
+        value: postgresql://admin:pJXUUv92yTwCRIfQGKM4E1ncz5yrdcuh@dpg-d2n0vah5pdvs739dpqe0-a.oregon-postgres.render.com:5432/dairy_5pkv
       - key: JWT_KEY
         generateValue: true
       - key: JWT_ISSUER
