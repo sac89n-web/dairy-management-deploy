@@ -176,7 +176,7 @@ app.MapGet("/setup-db", async (SqlConnectionFactory dbFactory) => {
         using var connection = (NpgsqlConnection)dbFactory.CreateConnection();
         await connection.OpenAsync();
         
-        var setupSql = System.IO.File.ReadAllText("render_schema.sql");
+        var setupSql = System.IO.File.ReadAllText("complete_schema.sql");
         
         using var cmd = new NpgsqlCommand(setupSql, connection);
         await cmd.ExecuteNonQueryAsync();
