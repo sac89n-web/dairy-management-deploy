@@ -1,258 +1,107 @@
 using Serilog;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Localization;
-using Microsoft.Extensions.Options;
-using System.Globalization;
-using System.Text;
-using Dairy.Infrastructure;
-using Dairy.Application;
-using Dairy.Reports;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
-try
+// Serilog for structured logging
+builder.Host.UseSerilog((ctx, lc) => lc
+    .WriteTo.Console()
+    .Enrich.WithProperty("RequestId", Guid.NewGuid())
+    .MinimumLevel.Information());
+
+// Essential services only
+builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
+
+// Database connection factory
+builder.Services.AddSingleton<Func<NpgsqlConnection>>(sp =>
 {
-    // Configure QuestPDF license
-    QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
-
-    // Serilog - Console only for cloud
-    builder.Host.UseSerilog((ctx, lc) => lc
-        .WriteTo.Console()
-        .MinimumLevel.Information());
-
-    // Configuration
-    var supportedCultures = builder.Configuration.GetSection("SupportedCultures").Get<string[]>();
-
-    // Localization
-    builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-    builder.Services.Configure<RequestLocalizationOptions>(options =>
-    {
-        var cultures = (supportedCultures != null && supportedCultures.Length > 0 ? supportedCultures : new[] { "en-IN", "hi-IN", "mr-IN" }).Select(c => new CultureInfo(c)).ToList();
-        options.DefaultRequestCulture = new RequestCulture("en-IN");
-        options.SupportedCultures = cultures;
-        options.SupportedUICultures = cultures;
-        options.RequestCultureProviders.Clear();
-        options.RequestCultureProviders.Add(new CookieRequestCultureProvider());
-        options.RequestCultureProviders.Add(new AcceptLanguageHeaderRequestCultureProvider());
-    });
-
-    // JWT Auth
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                ValidAudience = builder.Configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "default-key-for-development"))
-            };
-        });
-
-    // HTTP Context Accessor
-    builder.Services.AddHttpContextAccessor();
-
-    // Database and Infrastructure Services
-    builder.Services.AddSingleton<SqlConnectionFactory>(sp =>
-    {
-        var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-        
-        if (!string.IsNullOrEmpty(dbUrl) && dbUrl.StartsWith("postgresql://"))
-        {
-            var uri = new Uri(dbUrl);
-            var userInfo = uri.UserInfo.Split(':');
-            var connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.Trim('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true;SearchPath=dairy";
-            return new SqlConnectionFactory(connectionString);
-        }
-        else
-        {
-            var fallback = builder.Configuration.GetConnectionString("Postgres") ?? 
-                          "Host=localhost;Database=postgres;Username=admin;Password=admin123;SearchPath=dairy";
-            return new SqlConnectionFactory(fallback);
-        }
-    });
-
-    // Repository Services
-    builder.Services.AddScoped<CollectionRepository>();
-    builder.Services.AddScoped<SaleRepository>();
-    builder.Services.AddScoped<PaymentFarmerRepository>();
-    builder.Services.AddScoped<PaymentCustomerRepository>();
-    builder.Services.AddScoped<AuditLogRepository>();
-
-    // Application Services
-    builder.Services.AddScoped<SettingsCache>();
-    builder.Services.AddScoped<WeighingMachineService>();
-
-    // Report Services
-    builder.Services.AddScoped<ExcelReportService>();
-    builder.Services.AddScoped<PdfReportService>();
-
-    // Session support
-    builder.Services.AddDistributedMemoryCache();
-    builder.Services.AddSession(options =>
-    {
-        options.IdleTimeout = TimeSpan.FromHours(2);
-        options.Cookie.HttpOnly = true;
-        options.Cookie.IsEssential = true;
-    });
-
-    // Razor Pages, Controllers
-    builder.Services.AddRazorPages();
-    builder.Services.AddControllers();
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Error during service configuration: {ex.Message}");
-    // Add minimal services if full configuration fails
-    builder.Services.AddControllers();
-}
+    var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+    if (string.IsNullOrEmpty(dbUrl))
+        throw new InvalidOperationException("DATABASE_URL environment variable is required");
+    
+    return () => new NpgsqlConnection(ParseDatabaseUrl(dbUrl));
+});
 
 var app = builder.Build();
 
+// Global exception handler
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError("Unhandled exception occurred");
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("Internal Server Error");
+    });
+});
+
+// Request logging
+app.UseSerilogRequestLogging();
+
+// Health endpoints
+app.MapGet("/health", () => Results.Ok(new { 
+    status = "healthy", 
+    timestamp = DateTime.UtcNow,
+    environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+}));
+
+app.MapGet("/version", () => Results.Ok(new { 
+    version = "1.0.0", 
+    build = DateTime.UtcNow.ToString("yyyy-MM-dd")
+}));
+
+// Database connectivity test
+app.MapGet("/db-test", async (Func<NpgsqlConnection> dbFactory, ILogger<Program> logger) =>
+{
+    try
+    {
+        using var conn = dbFactory();
+        await conn.OpenAsync();
+        
+        using var cmd = new NpgsqlCommand("SELECT 1", conn);
+        var result = await cmd.ExecuteScalarAsync();
+        
+        logger.LogInformation("Database test successful: {Result}", result);
+        return Results.Ok(new { success = true, result });
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database test failed");
+        return Results.Problem($"Database error: {ex.Message}");
+    }
+});
+
+// Startup database check
 try
 {
-    // Session middleware
-    app.UseSession();
-
-    // Authentication middleware - restored for proper login functionality
-    app.Use(async (context, next) =>
+    var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+    if (!string.IsNullOrEmpty(dbUrl))
     {
-        var publicPaths = new[] { "/simple-login", "/login", "/database-login", "/health", "/api", "/swagger" };
-        
-        if (!publicPaths.Any(p => context.Request.Path.StartsWithSegments(p)) && 
-            context.Session.GetString("UserId") == null)
-        {
-            context.Response.Redirect("/simple-login");
-            return;
-        }
-        
-        await next();
-    });
-
-    // Localization Middleware
-    try
-    {
-        var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
-        app.UseRequestLocalization(locOptions);
+        using var conn = new NpgsqlConnection(ParseDatabaseUrl(dbUrl));
+        await conn.OpenAsync();
+        app.Logger.LogInformation("✅ Database connection verified at startup");
     }
-    catch
-    {
-        // Skip if localization fails
-    }
-
-    // Configure pipeline
-    app.UseSerilogRequestLogging();
-    app.UseHttpsRedirection();
-    app.UseStaticFiles();
-    app.UseRouting();
-    app.UseAuthentication();
-    app.UseAuthorization();
-
-    // Swagger - always enabled for API access
-    app.UseSwagger();
-    app.UseSwaggerUI();
-
-    // Endpoints
-    app.MapRazorPages();
-    app.MapControllers();
-
-    // Default route to dashboard like local version
-    app.MapGet("/", () => Results.Redirect("/dashboard"));
-
-    // Basic API endpoints
-    try
-    {
-        app.MapGet("/api/milk-collections", MilkCollectionEndpoints.List);
-        app.MapPost("/api/milk-collections", MilkCollectionEndpoints.Add);
-        app.MapPut("/api/milk-collections/{id}", MilkCollectionEndpoints.Update);
-        app.MapDelete("/api/milk-collections/{id}", MilkCollectionEndpoints.Delete);
-
-        app.MapGet("/api/sales", SaleEndpoints.List);
-        app.MapPost("/api/sales", SaleEndpoints.Add);
-    }
-    catch
-    {
-        // Continue without endpoints if they fail
-    }
-
-    // Debug endpoint
-    app.MapGet("/api/debug", () => {
-        var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-        return Results.Json(new {
-            hasDbUrl = !string.IsNullOrEmpty(dbUrl),
-            dbUrlLength = dbUrl?.Length ?? 0,
-            dbUrlStart = dbUrl?.Substring(0, Math.Min(30, dbUrl?.Length ?? 0)),
-            environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
-            port = Environment.GetEnvironmentVariable("PORT")
-        });
-    });
-
-    // Database test endpoint
-    app.MapGet("/api/test-db", async (SqlConnectionFactory dbFactory) => {
-        try {
-            var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-            if (string.IsNullOrEmpty(dbUrl)) {
-                return Results.Json(new { success = false, error = "DATABASE_URL is empty or null" });
-            }
-            
-            using var connection = (NpgsqlConnection)dbFactory.CreateConnection();
-            await connection.OpenAsync();
-            
-            using var cmd = new NpgsqlCommand("SELECT version()", connection);
-            var version = await cmd.ExecuteScalarAsync();
-            
-            return Results.Json(new { 
-                success = true, 
-                message = "Connected successfully",
-                version = version?.ToString(),
-                environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"
-            });
-        } catch (Exception ex) {
-            return Results.Json(new { success = false, error = ex.Message });
-        }
-    });
-
-    // Temporary login bypass for production - set session automatically
-    app.MapGet("/simple-login", (HttpContext context) => {
-        context.Session.SetString("UserId", "admin");
-        context.Session.SetString("UserName", "Administrator");
-        return Results.Redirect("/dashboard");
-    });
-
-    // Login endpoint
-    app.MapPost("/login", (HttpContext context) => {
-        context.Session.SetString("UserId", "admin");
-        context.Session.SetString("UserName", "Administrator");
-        return Results.Redirect("/dashboard");
-    });
-
-    // Logout endpoint
-    app.MapGet("/logout", (HttpContext context) => {
-        context.Session.Clear();
-        return Results.Redirect("/simple-login");
-    });
-
-    // Health check endpoint
-    app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"Error during app configuration: {ex.Message}");
-    // Add minimal endpoints if full configuration fails
-    app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
-    app.MapGet("/", () => Results.Ok(new { message = "Dairy Management System", error = ex.Message }));
+    app.Logger.LogError(ex, "❌ Database connection failed at startup");
+    // Don't throw - let app start for diagnostics
 }
 
-// Get port from environment or default
+// CRITICAL: Bind to Render's PORT
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 app.Urls.Add($"http://0.0.0.0:{port}");
 
-app.Logger.LogInformation("Starting Dairy Management System on port {Port}", port);
+app.Logger.LogInformation("🚀 Starting on port {Port}", port);
 app.Run();
+
+// Helper method to parse Render's DATABASE_URL
+static string ParseDatabaseUrl(string databaseUrl)
+{
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+    
+    return $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.Trim('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
